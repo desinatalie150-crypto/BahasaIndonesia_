@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Teks Rekon — Alfalian Vergio Novel Bangun</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Typography: Newsreader (Literary Serif), Plus Jakarta Sans (Clean Sans), JetBrains Mono (Archival Numbering) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Newsreader"', 'Georgia', 'Times New Roman', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      /* Tema Kertas Sastra Klasik (Default - Hangat & Cetak) */
+      --paper: #F5F0E6;
+      --paper-alt: #E8E0D0;
+      --ink: #181613;
+      --ink-muted: #5C544B;
+      --ink-faint: #8F8477;
+      --soga: #9E3321; /* Merah Soga Klasik */
+      --soga-soft: rgba(158, 51, 33, 0.08);
+      --rule: rgba(24, 22, 19, 0.16);
+      --rule-strong: rgba(24, 22, 19, 0.38);
+    }
+
+    html.night-ink {
+      /* Tema Kamar Baca Malam (Matte Ink Gelap Elegan) */
+      --paper: #141312;
+      --paper-alt: #1E1C1A;
+      --ink: #EFEADF;
+      --ink-muted: #ADA498;
+      --ink-faint: #7A7266;
+      --soga: #D45B45;
+      --soga-soft: rgba(212, 91, 69, 0.12);
+      --rule: rgba(239, 234, 223, 0.14);
+      --rule-strong: rgba(239, 234, 223, 0.32);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      height: 100dvh;
+      width: 100vw;
+      margin: 0;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Tekstur Kertas Halus */
+    .paper-grain {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    .border-rule { border-color: var(--rule); }
+    .border-rule-strong { border-color: var(--rule-strong); }
+    .text-ink { color: var(--ink); }
+    .text-muted { color: var(--ink-muted); }
+    .text-faint { color: var(--ink-faint); }
+    .text-soga { color: var(--soga); }
+    .bg-paper { background-color: var(--paper); }
+    .bg-paper-alt { background-color: var(--paper-alt); }
+    .bg-soga-soft { background-color: var(--soga-soft); }
+
+    /* Track Geser Horizontal dengan Physics Spring untuk Desktop & Mobile */
+    #editorialTrack {
+      display: flex;
+      width: 700vw; /* 7 Slide */
+      height: 100dvh;
+      will-change: transform;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: grab;
+    }
+
+    #editorialTrack.is-dragging {
+      transition: none !important;
+      cursor: grabbing;
+    }
+
+    .page-spread {
+      width: 100vw;
+      height: 100dvh;
+      flex-shrink: 0;
+      padding: 4.5rem 0 4.5rem 0; /* Jarak pas agar tidak tertutup header & footer desktop */
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Drop Cap Sastra */
+    .drop-cap::first-letter {
+      font-family: 'Newsreader', Georgia, serif;
+      float: left;
+      font-size: 3.8rem;
+      line-height: 0.8;
+      padding-top: 6px;
+      padding-right: 14px;
+      padding-bottom: 2px;
+      color: var(--soga);
+      font-weight: 600;
+    }
+
+    /* Garis Titik-Titik Daftar Buku */
+    .toc-dots {
+      background-image: radial-gradient(circle, var(--ink-faint) 1px, transparent 1px);
+      background-position: bottom;
+      background-size: 8px 1px;
+      background-repeat: repeat-x;
+    }
+
+    /* Stempel Tinta Arsip */
+    .ink-stamp {
+      border: 1.5px solid var(--soga);
+      color: var(--soga);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+      box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px rgba(158, 51, 33, 0.3);
+    }
+
+    /* Scrollbar Halus */
+    .editorial-scroll::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .editorial-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .editorial-scroll::-webkit-scrollbar-thumb {
+      background: var(--rule-strong);
+      border-radius: 2px;
+    }
+
+    /* Animasi Masuk Lembar Aktif */
+    .stagger-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .page-spread.is-active .stagger-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .page-spread.is-active .d-1 { transition-delay: 0.06s; }
+    .page-spread.is-active .d-2 { transition-delay: 0.14s; }
+    .page-spread.is-active .d-3 { transition-delay: 0.22s; }
+    .page-spread.is-active .d-4 { transition-delay: 0.3s; }
+  </style>
+</head>
+<body class="select-none relative">
+
+  <!-- Tekstur Kertas Halus di Seluruh Halaman -->
+  <div class="fixed inset-0 paper-grain pointer-events-none z-50"></div>
+
+  <!-- =========================================================
+       RUNNING HEADER (DESKTOP & MOBILE HEADER)
+       ========================================================= -->
+  <header class="fixed top-0 left-0 right-0 h-16 border-b border-rule bg-paper/95 backdrop-blur-md z-40 px-6 lg:px-16 flex items-center justify-between text-xs">
+    <!-- Kiri: Identitas Monografi & Penulis -->
+    <div class="flex items-center gap-4">
+      <button onclick="goToPage(0)" class="font-mono tracking-widest uppercase text-[11px] hover:text-soga transition-colors flex items-center gap-2.5">
+        <span class="inline-block w-2.5 h-2.5 rounded-full" style="background-color: var(--soga);"></span>
+        <span class="font-semibold">PUSTAKA BAHASA INDONESIA</span>
+      </button>
+      <span class="hidden md:inline-block text-faint">|</span>
+      <span id="runningHeaderChapter" class="hidden md:inline-block font-serif italic text-sm text-muted">
+        Lembar Sampul — Teks Rekon
+      </span>
+    </div>
+
+    <!-- Kanan: Indeks, Nama, & Tombol Mode Malam -->
+    <div class="flex items-center gap-5 lg:gap-8">
+      <span class="hidden lg:inline-block font-mono text-[11px] text-faint tracking-wider">
+        PENULIS: <strong class="font-medium text-ink">ALFALIAN VERGIO NOVEL BANGUN</strong>
+      </span>
+
+      <button onclick="toggleIndexDrawer()" class="font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 border border-rule hover:border-rule-strong hover:bg-paper-alt transition-all">
+        Daftar Isi [7 Lembar]
+      </button>
+
+      <button onclick="togglePaperMode()" id="paperModeBtn" class="font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 border border-rule hover:border-rule-strong hover:bg-paper-alt transition-all" title="Ganti Mode Kertas Siang / Malam">
+        Malam
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       HORIZONTAL EDITORIAL TRACK (DESKTOP OPTIMIZED SPREAD)
+       ========================================================= -->
+  <main id="editorialTrack">
+
+    <!-- =======================================================
+         LEMBAR 01: SAMPUL UTAMA
+         ======================================================= -->
+    <section class="page-spread is-active" data-running="Lembar I — Sampul Monografi">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 h-full border-x border-rule shadow-sm bg-paper">
+          
+          <!-- Kolom Punggung Kiri Desktop -->
+          <div class="hidden lg:flex lg:col-span-2 border-r border-rule flex-col justify-between p-8 text-faint font-mono text-[11px]">
+            <div>
+              <p class="tracking-widest uppercase text-soga font-semibold">SERI KAJIAN</p>
+              <p class="mt-1.5 text-ink font-medium">CERITA ULANG</p>
+            </div>
+            <div class="my-auto py-12 border-y border-rule text-center">
+              <p class="font-serif italic text-base text-muted leading-relaxed">“Merekam jejak peristiwa dalam tutur sastra.”</p>
+            </div>
+            <div>
+              <p>NO. KATALOG</p>
+              <p class="text-ink font-semibold">IND / VII-RK</p>
+            </div>
+          </div>
+
+          <!-- Kolom Utama Sampul -->
+          <div class="lg:col-span-10 p-8 sm:p-14 lg:p-20 flex flex-col justify-between relative">
+            <div class="stagger-in d-1 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-6">
+              <div>
+                <p class="font-mono text-xs uppercase tracking-[0.25em] text-soga font-semibold">
+                  Materi Bahasa & Sastra Indonesia
+                </p>
+                <p class="font-serif italic text-base sm:text-lg text-muted mt-1.5">
+                  Pengertian, Klasifikasi Jenis, Contoh Karya, dan Telaah Soal
+                </p>
+              </div>
+              <div class="ink-stamp px-3.5 py-1.5 font-mono text-[10px] font-semibold">
+                EDISI MONOGRAFI • VII LEMBAR
+              </div>
+            </div>
+
+            <div class="my-auto py-10 lg:py-16">
+              <p class="stagger-in d-2 font-mono text-xs uppercase tracking-[0.3em] text-faint mb-4">
+                POKOK BAHASAN UTAMA
+              </p>
+              <h1 class="stagger-in d-2 font-serif font-normal text-6xl sm:text-8xl lg:text-[8rem] leading-[0.92] tracking-tight text-ink">
+                Teks Rekon<span class="text-soga">.</span>
+              </h1>
+              <div class="stagger-in d-3 mt-8 lg:mt-10 max-w-2xl border-l-2 pl-6" style="border-color: var(--soga);">
+                <p class="font-serif text-xl sm:text-2xl leading-relaxed text-muted italic">
+                  Sebuah ulasan ringkas mengenai teks cerita ulang—bagaimana pengalaman masa lalu, sejarah faktual, hingga imajinasi kreatif dirangkai kembali bagi pembaca.
+                </p>
+              </div>
+            </div>
+
+            <div class="stagger-in d-4 pt-6 border-t border-rule flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+              <div>
+                <p class="font-mono text-xs uppercase tracking-[0.2em] text-faint">
+                  Disusun Oleh:
+                </p>
+                <p class="font-serif text-3xl sm:text-4xl font-medium text-ink mt-1">
+                  Alfalian Vergio Novel Bangun
+                </p>
+              </div>
+
+              <button onclick="nextPage()" class="group inline-flex items-center gap-5 px-6 py-3.5 border border-rule-strong hover:bg-ink hover:text-paper transition-all text-xs font-mono uppercase tracking-widest">
+                <span>Buka Lembar I</span>
+                <span class="group-hover:translate-x-1.5 transition-transform text-base">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 02: I. PENGERTIAN & II. JENIS TEKS REKON
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar II — I. Pengertian & II. Jenis Teks Rekon">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 h-full border-x border-rule bg-paper shadow-sm">
+          
+          <!-- Kiri: Pengertian -->
+          <div class="lg:col-span-7 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-rule flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN I • DEFINISI</span>
+              <span class="font-mono text-xs text-faint">HAL. 02</span>
+            </div>
+
+            <div class="my-auto py-8">
+              <h2 class="stagger-in d-2 font-serif text-3xl sm:text-5xl font-normal text-ink leading-tight mb-8">
+                I. Apa itu Teks Rekon?
+              </h2>
+
+              <p class="stagger-in d-3 drop-cap font-serif text-xl sm:text-2xl lg:text-[1.65rem] leading-[1.75] text-ink">
+                Teks Rekon adalah teks yang berisi pengalaman masa lalu dengan tujuan memberi informasi berupa kejadian yang nyata seperti eksperimen atau sejarah kepada pembaca bahkan bisa disebut <em class="text-soga font-semibold not-italic underline decoration-1 underline-offset-4">teks cerita ulang</em>.
+              </p>
+
+              <div class="stagger-in d-4 mt-10 pt-8 border-t border-rule grid grid-cols-3 gap-6 font-mono text-xs">
+                <div>
+                  <p class="text-faint uppercase text-[10px]">WAKTU KISAH</p>
+                  <p class="text-ink mt-1 font-semibold text-sm">Pengalaman Lalu</p>
+                </div>
+                <div>
+                  <p class="text-faint uppercase text-[10px]">SIFAT INFORMASI</p>
+                  <p class="text-ink mt-1 font-semibold text-sm">Nyata / Historis</p>
+                </div>
+                <div>
+                  <p class="text-faint uppercase text-[10px]">ISTILAH LAIN</p>
+                  <p class="text-ink mt-1 font-semibold text-sm">Cerita Ulang</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="font-mono text-xs text-faint pt-4 border-t border-rule">
+              • Kutipan resmi materi ajar Bahasa Indonesia.
+            </div>
+          </div>
+
+          <!-- Kanan: Jenis Jenis -->
+          <div class="lg:col-span-5 p-8 sm:p-12 lg:p-16 bg-paper-alt/50 flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN II • KLASIFIKASI</span>
+              <span class="font-mono text-xs text-faint">3 KATEGORI</span>
+            </div>
+
+            <div class="my-auto py-8">
+              <h3 class="stagger-in d-2 font-serif text-2xl sm:text-3xl font-normal text-ink mb-3">
+                II. Jenis - Jenis Teks Rekon
+              </h3>
+              <p class="stagger-in d-2 text-sm text-muted mb-8">
+                Berdasarkan sifat dan muatan isinya, dibagi menjadi:
+              </p>
+
+              <div class="stagger-in d-3 space-y-4">
+                <button onclick="goToPage(2)" class="w-full group text-left block p-5 border border-rule hover:border-rule-strong bg-paper transition-all shadow-2xs">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="font-serif text-xl sm:text-2xl text-ink group-hover:text-soga transition-colors">
+                      • Rekon faktual
+                    </span>
+                    <span class="flex-1 toc-dots mx-3"></span>
+                    <span class="font-mono text-xs text-soga font-medium">Lembar III →</span>
+                  </div>
+                  <p class="text-xs text-muted mt-2 font-sans">
+                    Berdasarkan fakta dan akurat (sejarah, peristiwa nyata).
+                  </p>
+                </button>
+
+                <button onclick="goToPage(3)" class="w-full group text-left block p-5 border border-rule hover:border-rule-strong bg-paper transition-all shadow-2xs">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="font-serif text-xl sm:text-2xl text-ink group-hover:text-soga transition-colors">
+                      • Rekon pribadi
+                    </span>
+                    <span class="flex-1 toc-dots mx-3"></span>
+                    <span class="font-mono text-xs text-soga font-medium">Lembar IV →</span>
+                  </div>
+                  <p class="text-xs text-muted mt-2 font-sans">
+                    Pengalaman masa lalu yang dialami langsung penulis sendiri.
+                  </p>
+                </button>
+
+                <button onclick="goToPage(4)" class="w-full group text-left block p-5 border border-rule hover:border-rule-strong bg-paper transition-all shadow-2xs">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="font-serif text-xl sm:text-2xl text-ink group-hover:text-soga transition-colors">
+                      • Rekon imajinatif
+                    </span>
+                    <span class="flex-1 toc-dots mx-3"></span>
+                    <span class="font-mono text-xs text-soga font-medium">Lembar V →</span>
+                  </div>
+                  <p class="text-xs text-muted mt-2 font-sans">
+                    Latar nyata yang dikembangkan dengan karangan kreatif.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            <div class="font-mono text-xs text-faint">
+              Klik kotak di atas untuk melompat langsung ke halaman terkait.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 03: III. REKON FAKTUAL & IV. CONTOH
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar III — III & IV. Teks Rekon Faktual">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 h-full border-x border-rule bg-paper shadow-sm">
+          
+          <!-- Kiri: Definisi Faktual -->
+          <div class="lg:col-span-5 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-rule flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN III</span>
+              <span class="font-mono text-xs text-faint">HAL. 03</span>
+            </div>
+
+            <div class="my-auto py-8">
+              <span class="font-serif italic text-6xl sm:text-7xl text-soga/30 block mb-3">III.</span>
+              <h2 class="stagger-in d-2 font-serif text-3xl sm:text-4xl font-normal text-ink mb-6">
+                III. Teks Rekon Faktual
+              </h2>
+              <p class="stagger-in d-3 font-serif text-lg sm:text-xl leading-[1.8] text-ink border-l-2 pl-5" style="border-color: var(--soga);">
+                • Teks Rekon Faktual adalah teks rekon yang berisi tentang informasi berdasarkan <strong>fakta dan akurat</strong> walaupun bisa dibumbui imajinatif tetapi itu hanya pendukung atau estetika.
+              </p>
+            </div>
+
+            <div class="stagger-in d-4 p-5 bg-soga-soft border border-rule">
+              <p class="font-mono text-[11px] uppercase tracking-widest text-soga font-semibold mb-1.5">CATATAN REDAKSI</p>
+              <p id="noteTextFaktual" class="text-xs sm:text-sm leading-relaxed text-muted">
+                Arahkan kursor atau ketuk salah satu peristiwa di sebelah kanan untuk membaca ulasan singkat peristiwa faktual tersebut.
+              </p>
+            </div>
+          </div>
+
+          <!-- Kanan: Daftar Contoh Faktual -->
+          <div class="lg:col-span-7 p-8 sm:p-12 lg:p-16 flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN IV • DAFTAR CONTOH</span>
+              <span class="font-mono text-xs text-faint">6 PERISTIWA NYATA</span>
+            </div>
+
+            <div class="my-auto py-6">
+              <h3 class="stagger-in d-2 font-serif text-2xl sm:text-3xl font-normal text-ink mb-6">
+                IV. Contoh - Contoh Teks Rekon Faktual
+              </h3>
+
+              <div class="stagger-in d-3 divide-y border-y border-rule">
+                <div onmouseenter="setNote('Faktual', 'Tsunami Aceh 2004: Catatan sejarah bencana gempa bumi dan gelombang tsunami dahsyat pada 26 Desember 2004 yang disajikan secara akurat dan kronologis.')" onclick="setNote('Faktual', 'Tsunami Aceh 2004: Catatan sejarah bencana gempa bumi dan gelombang tsunami dahsyat pada 26 Desember 2004 yang disajikan secara akurat dan kronologis.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">01.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Tsunami Aceh 2004</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Sejarah Bencana</span>
+                </div>
+
+                <div onmouseenter="setNote('Faktual', 'Perjalanan Menuju Kemerdekaan Indonesia: Rekaman peristiwa bersejarah bangsa Indonesia menjelang Proklamasi 17 Agustus 1945.')" onclick="setNote('Faktual', 'Perjalanan Menuju Kemerdekaan Indonesia: Rekaman peristiwa bersejarah bangsa Indonesia menjelang Proklamasi 17 Agustus 1945.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">02.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Perjalanan Menuju Kemerdekaan Indonesia</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Sejarah Nasional</span>
+                </div>
+
+                <div onmouseenter="setNote('Faktual', 'Konferensi Meja Bundar: Peristiwa diplomasi bersejarah di Den Haag tahun 1949 mengenai pengakuan kedaulatan penuh Republik Indonesia.')" onclick="setNote('Faktual', 'Konferensi Meja Bundar: Peristiwa diplomasi bersejarah di Den Haag tahun 1949 mengenai pengakuan kedaulatan penuh Republik Indonesia.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">03.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Konferensi Meja Bundar</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Diplomasi 1949</span>
+                </div>
+
+                <div onmouseenter="setNote('Faktual', 'Tragedi Bintaro: Cerita ulang faktual mengenai insiden tabrakan kereta api di kawasan Bintaro berdasarkan laporan investigasi nyata.')" onclick="setNote('Faktual', 'Tragedi Bintaro: Cerita ulang faktual mengenai insiden tabrakan kereta api di kawasan Bintaro berdasarkan laporan investigasi nyata.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">04.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Tragedi Bintaro</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Dokumenter</span>
+                </div>
+
+                <div onmouseenter="setNote('Faktual', 'Tenggelamnya Kapal Virgo Transport 8: Pemaparan kronologis dan faktual mengenai peristiwa kecelakaan pelayaran kapal.')" onclick="setNote('Faktual', 'Tenggelamnya Kapal Virgo Transport 8: Pemaparan kronologis dan faktual mengenai peristiwa kecelakaan pelayaran kapal.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">05.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Tenggelamnya Kapal Virgo Transport 8</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Laporan Maritim</span>
+                </div>
+
+                <div onmouseenter="setNote('Faktual', 'Banjir di Sumatra Utara 2025: Laporan peristiwa bencana banjir yang melanda wilayah Sumatra Utara berdasarkan data lapangan.')" onclick="setNote('Faktual', 'Banjir di Sumatra Utara 2025: Laporan peristiwa bencana banjir yang melanda wilayah Sumatra Utara berdasarkan data lapangan.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">06.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Banjir di Sumatra Utara 2025</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Peristiwa Aktual</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="font-mono text-xs text-faint flex justify-between pt-3">
+              <span>III & IV — Teks Rekon Faktual</span>
+              <span>Alfalian Vergio Novel Bangun</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 04: V. REKON PRIBADI & VI. CONTOH
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar IV — V & VI. Teks Rekon Pribadi">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 h-full border-x border-rule bg-paper shadow-sm">
+          
+          <!-- Kiri: Definisi Pribadi -->
+          <div class="lg:col-span-5 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-rule flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN V</span>
+              <span class="font-mono text-xs text-faint">HAL. 04</span>
+            </div>
+
+            <div class="my-auto py-8">
+              <span class="font-serif italic text-6xl sm:text-7xl text-soga/30 block mb-3">V.</span>
+              <h2 class="stagger-in d-2 font-serif text-3xl sm:text-4xl font-normal text-ink mb-6">
+                V. Teks Rekon Pribadi
+              </h2>
+              <p class="stagger-in d-3 font-serif text-lg sm:text-xl leading-[1.8] text-ink border-l-2 pl-5" style="border-color: var(--soga);">
+                • Teks rekon pribadi adalah teks yang menceritakan kembali pengalaman masa lalu yang <strong>dialami secara langsung oleh si penulis sendiri</strong> walaupun bisa dibumbui imajinatif pada pendukung dan estetika.
+              </p>
+            </div>
+
+            <div class="stagger-in d-4 p-5 bg-soga-soft border border-rule">
+              <p class="font-mono text-[11px] uppercase tracking-widest text-soga font-semibold mb-1.5">CATATAN REDAKSI</p>
+              <p id="noteTextPribadi" class="text-xs sm:text-sm leading-relaxed text-muted">
+                Sudut pandang yang lazim dipakai adalah orang pertama (“Aku” atau “Saya”) karena penulis terlibat langsung dalam kejadian tersebut.
+              </p>
+            </div>
+          </div>
+
+          <!-- Kanan: Daftar Contoh Pribadi -->
+          <div class="lg:col-span-7 p-8 sm:p-12 lg:p-16 flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN VI • DAFTAR CONTOH</span>
+              <span class="font-mono text-xs text-faint">6 MEMOAR PRIBADI</span>
+            </div>
+
+            <div class="my-auto py-6">
+              <h3 class="stagger-in d-2 font-serif text-2xl sm:text-3xl font-normal text-ink mb-6">
+                VI. Contoh - Contoh Teks Rekon Pribadi
+              </h3>
+
+              <div class="stagger-in d-3 divide-y border-y border-rule">
+                <div onmouseenter="setNote('Pribadi', 'Perjalanan Menuju Samosir: Kisah nyata penulis ketika melakukan perjalanan liburan menuju Pulau Samosir di kawasan Danau Toba.')" onclick="setNote('Pribadi', 'Perjalanan Menuju Samosir: Kisah nyata penulis ketika melakukan perjalanan liburan menuju Pulau Samosir di kawasan Danau Toba.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">01.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Perjalanan Menuju Samosir</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Catatan Perjalanan</span>
+                </div>
+
+                <div onmouseenter="setNote('Pribadi', 'Sekolah Dasar yang Menarik: Cerita kenangan masa sekolah dasar yang dialami langsung oleh penulis di masa lalu.')" onclick="setNote('Pribadi', 'Sekolah Dasar yang Menarik: Cerita kenangan masa sekolah dasar yang dialami langsung oleh penulis di masa lalu.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">02.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Sekolah Dasar yang Menarik</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Kenangan Kecil</span>
+                </div>
+
+                <div onmouseenter="setNote('Pribadi', 'Perjalanan untuk Menemui Keluarga yang Jauh: Pengalaman pribadi menempuh jarak jauh demi bersua dengan sanak saudara.')" onclick="setNote('Pribadi', 'Perjalanan untuk Menemui Keluarga yang Jauh: Pengalaman pribadi menempuh jarak jauh demi bersua dengan sanak saudara.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">03.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Perjalanan untuk Menemui Keluarga yang Jauh</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Kisah Keluarga</span>
+                </div>
+
+                <div onmouseenter="setNote('Pribadi', 'Sekolah International yang Membosankan: Ungkapan kesan dan pengalaman subjektif penulis saat bersekolah di institusi internasional.')" onclick="setNote('Pribadi', 'Sekolah International yang Membosankan: Ungkapan kesan dan pengalaman subjektif penulis saat bersekolah di institusi internasional.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">04.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Sekolah International yang Membosankan</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Refleksi Diri</span>
+                </div>
+
+                <div onmouseenter="setNote('Pribadi', 'Hari yang Sangat Meyedihkan: Penuturan kembali sebuah hari yang membekas secara emosional mendalam bagi penulis.')" onclick="setNote('Pribadi', 'Hari yang Sangat Meyedihkan: Penuturan kembali sebuah hari yang membekas secara emosional mendalam bagi penulis.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">05.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Hari yang Sangat Meyedihkan</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Diari Emosional</span>
+                </div>
+
+                <div onmouseenter="setNote('Pribadi', 'Perjalanan Darat yang Sangat Seru: Pengalaman langsung penulis menikmati petualangan menyusuri jalur darat.')" onclick="setNote('Pribadi', 'Perjalanan Darat yang Sangat Seru: Pengalaman langsung penulis menikmati petualangan menyusuri jalur darat.')" class="py-4 px-3 flex items-baseline justify-between gap-4 hover:bg-paper-alt/60 cursor-pointer transition-colors">
+                  <div class="flex items-baseline gap-4">
+                    <span class="font-mono text-xs text-soga font-semibold">06.</span>
+                    <span class="font-serif text-lg sm:text-xl text-ink">• Perjalanan Darat yang Sangat Seru</span>
+                  </div>
+                  <span class="font-mono text-xs text-faint shrink-0">Petualangan</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="font-mono text-xs text-faint flex justify-between pt-3">
+              <span>V & VI — Teks Rekon Pribadi</span>
+              <span>Alfalian Vergio Novel Bangun</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 05: VII. REKON IMAJINATIF & VIII. CONTOH
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar V — VII & VIII. Teks Rekon Imajinatif">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="grid grid-cols-1 lg:grid-cols-12 h-full border-x border-rule bg-paper shadow-sm">
+          
+          <!-- Kiri: Definisi Imajinatif -->
+          <div class="lg:col-span-6 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-rule flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN VII</span>
+              <span class="font-mono text-xs text-faint">HAL. 05</span>
+            </div>
+
+            <div class="my-auto py-8">
+              <span class="font-serif italic text-6xl sm:text-7xl text-soga/30 block mb-3">VII.</span>
+              <h2 class="stagger-in d-2 font-serif text-3xl sm:text-4xl font-normal text-ink mb-6">
+                VII. Teks Rekon Imajinatif
+              </h2>
+              <p class="stagger-in d-3 font-serif text-lg sm:text-xl leading-[1.8] text-ink border-l-2 pl-5" style="border-color: var(--soga);">
+                • Teks rekon imajinatif adalah teks yang menceritakan kembali suatu peristiwa masa lalu menggunakan <strong>latar tempat atau latar waktu yang nyata (fakta)</strong>, namun urutan kejadian, tokoh, dan detail peristiwanya dikembangkan berdasarkan <strong>khayalan atau karangan kreatif (imajinasi)</strong> penulis.
+              </p>
+            </div>
+
+            <div class="stagger-in d-4 p-5 bg-soga-soft border border-rule">
+              <p class="font-mono text-[11px] uppercase tracking-widest text-soga font-semibold mb-1.5">RUMUS KARYA</p>
+              <p id="noteTextImajinatif" class="text-xs sm:text-sm leading-relaxed text-muted">
+                <strong>Latar Nyata (Fakta)</strong> + <strong>Alur & Tokoh Rekaan (Imajinasi)</strong> = Teks Rekon Imajinatif yang memikat.
+              </p>
+            </div>
+          </div>
+
+          <!-- Kanan: Daftar Contoh Imajinatif -->
+          <div class="lg:col-span-6 p-8 sm:p-12 lg:p-16 flex flex-col justify-between">
+            <div class="stagger-in d-1 flex items-center justify-between border-b border-rule pb-3">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN VIII • DAFTAR CONTOH</span>
+              <span class="font-mono text-xs text-faint">4 KARYA REKAAN</span>
+            </div>
+
+            <div class="my-auto py-6">
+              <h3 class="stagger-in d-2 font-serif text-2xl sm:text-3xl font-normal text-ink mb-6">
+                VIII. Contoh - Contoh Teks Rekon Imajinatif
+              </h3>
+
+              <div class="stagger-in d-3 space-y-4">
+                <div onmouseenter="setNote('Imajinatif', 'Perjalanan ke Gunung Sinabung: Latar geografis Gunung Sinabung adalah nyata, tetapi rangkaian konflik dan peristiwanya dikembangkan secara imajinatif.')" onclick="setNote('Imajinatif', 'Perjalanan ke Gunung Sinabung: Latar geografis Gunung Sinabung adalah nyata, tetapi rangkaian konflik dan peristiwanya dikembangkan secara imajinatif.')" class="p-4 sm:p-5 border border-rule hover:border-rule-strong bg-paper-alt/30 cursor-pointer transition-all">
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-serif text-xl text-ink">• Perjalanan ke Gunung Sinabung</span>
+                    <span class="font-mono text-xs text-soga font-semibold">01</span>
+                  </div>
+                  <p class="text-xs text-muted mt-1.5">Latar nyata Gunung Sinabung dengan pengembangan cerita rekaan.</p>
+                </div>
+
+                <div onmouseenter="setNote('Imajinatif', 'Trip Singapura Satu Hari: Menggunakan latar negara Singapura yang nyata dengan skenario adegan khayalan penulis.')" onclick="setNote('Imajinatif', 'Trip Singapura Satu Hari: Menggunakan latar negara Singapura yang nyata dengan skenario adegan khayalan penulis.')" class="p-4 sm:p-5 border border-rule hover:border-rule-strong bg-paper-alt/30 cursor-pointer transition-all">
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-serif text-xl text-ink">• Trip Singapura Satu Hari</span>
+                    <span class="font-mono text-xs text-soga font-semibold">02</span>
+                  </div>
+                  <p class="text-xs text-muted mt-1.5">Latar kota nyata dipadukan dengan alur cerita hasil imajinasi.</p>
+                </div>
+
+                <div onmouseenter="setNote('Imajinatif', 'Studytour Bersama Teman - teman: Mengangkat suasana studytour nyata yang dikisahkan dengan detail peristiwa rekaan.')" onclick="setNote('Imajinatif', 'Studytour Bersama Teman - teman: Mengangkat suasana studytour nyata yang dikisahkan dengan detail peristiwa rekaan.')" class="p-4 sm:p-5 border border-rule hover:border-rule-strong bg-paper-alt/30 cursor-pointer transition-all">
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-serif text-xl text-ink">• Studytour Bersama Teman - teman</span>
+                    <span class="font-mono text-xs text-soga font-semibold">03</span>
+                  </div>
+                  <p class="text-xs text-muted mt-1.5">Suasana wisata edukasi faktual dengan bumbu cerita kreatif.</p>
+                </div>
+
+                <div onmouseenter="setNote('Imajinatif', 'Mobil Rusak di Jembatan Ampera: Berlatar Jembatan Ampera Palembang yang nyata dengan insiden cerita fiktif.')" onclick="setNote('Imajinatif', 'Mobil Rusak di Jembatan Ampera: Berlatar Jembatan Ampera Palembang yang nyata dengan insiden cerita fiktif.')" class="p-4 sm:p-5 border border-rule hover:border-rule-strong bg-paper-alt/30 cursor-pointer transition-all">
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-serif text-xl text-ink">• Mobil Rusak di Jembatan Ampera</span>
+                    <span class="font-mono text-xs text-soga font-semibold">04</span>
+                  </div>
+                  <p class="text-xs text-muted mt-1.5">Latar ikonik Palembang dengan skenario kejadian hasil khayalan.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="font-mono text-xs text-faint flex justify-between pt-3">
+              <span>VII & VIII — Teks Rekon Imajinatif</span>
+              <span>Alfalian Vergio Novel Bangun</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 06: IX. SOAL - SOAL & TELAAH KUTIPAN
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar VI — IX. Soal-Soal & Analisis Teks">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="border-x border-rule bg-paper h-full p-8 sm:p-12 lg:p-16 flex flex-col justify-between shadow-sm">
+          
+          <div class="stagger-in d-1 flex flex-wrap items-baseline justify-between gap-3 border-b border-rule pb-4">
+            <div class="flex items-baseline gap-4">
+              <span class="font-mono text-xs uppercase tracking-widest text-soga font-semibold">BAGIAN IX</span>
+              <h2 class="font-serif text-3xl sm:text-4xl font-normal text-ink">IX. Soal - Soal & Telaah Kutipan</h2>
+            </div>
+            <span class="font-mono text-xs text-muted">
+              Uji analisis: pilih jenis Teks Rekon yang sesuai di bawah setiap kutipan:
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 my-auto py-6">
+            <!-- Kutipan 1 -->
+            <div class="stagger-in d-2 border border-rule p-6 sm:p-8 bg-paper-alt/30 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between font-mono text-xs text-faint mb-4 pb-2 border-b border-rule">
+                  <span>KUTIPAN ANALISIS I</span>
+                  <span>SOAL 01</span>
+                </div>
+                <p class="font-serif text-base sm:text-lg leading-[1.8] text-ink mb-6">
+                  • Pada tanggal 15 November 2024, kawasan permukiman nelayan di Pantai Utara mengalami bencana banjir rob (air pasang laut) yang cukup tinggi disertai angin kencang. Peristiwa ini mulai terjadi pada pukul 14.30 WIB ketika air laut perlahan-lahan naik meluap ke daratan.
+                </p>
+              </div>
+
+              <div class="pt-4 border-t border-rule">
+                <p class="font-mono text-[11px] uppercase tracking-wider text-muted mb-3 font-medium">
+                  Tentukan Jenis Teks Rekon:
+                </p>
+                <div class="grid grid-cols-3 gap-2.5 font-mono text-xs">
+                  <button onclick="gradePassage(1, 'faktual', this)" class="ans-btn-1 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Faktual
+                  </button>
+                  <button onclick="gradePassage(1, 'pribadi', this)" class="ans-btn-1 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Pribadi
+                  </button>
+                  <button onclick="gradePassage(1, 'imajinatif', this)" class="ans-btn-1 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Imajinatif
+                  </button>
+                </div>
+                <div id="verdictBox-1" class="hidden mt-4 p-3.5 border border-rule text-xs leading-relaxed"></div>
+              </div>
+            </div>
+
+            <!-- Kutipan 2 -->
+            <div class="stagger-in d-3 border border-rule p-6 sm:p-8 bg-paper-alt/30 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between font-mono text-xs text-faint mb-4 pb-2 border-b border-rule">
+                  <span>KUTIPAN ANALISIS II</span>
+                  <span>SOAL 02</span>
+                </div>
+                <p class="font-serif text-sm sm:text-base leading-[1.75] text-ink mb-6">
+                  • Sebagai seorang agen Chronos-Operational tahun 2240, saya ditugaskan kembali ke masa lalu menuju satu titik koordinat yang spesifik: Museum Fatahillah (Museum Sejarah Jakarta) pada tanggal 12 Mei 2026. Misi saya bersifat rahasia, yaitu melacak sinyal anomali partikel takyon yang diprediksi mengubah sejarah modern Jakarta. Saya berdiri di tengah kerumunan wisatawan dengan pakaian kasual abad ke-21 agar membaur...
+                </p>
+              </div>
+
+              <div class="pt-4 border-t border-rule">
+                <p class="font-mono text-[11px] uppercase tracking-wider text-muted mb-3 font-medium">
+                  Tentukan Jenis Teks Rekon:
+                </p>
+                <div class="grid grid-cols-3 gap-2.5 font-mono text-xs">
+                  <button onclick="gradePassage(2, 'faktual', this)" class="ans-btn-2 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Faktual
+                  </button>
+                  <button onclick="gradePassage(2, 'pribadi', this)" class="ans-btn-2 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Pribadi
+                  </button>
+                  <button onclick="gradePassage(2, 'imajinatif', this)" class="ans-btn-2 py-2.5 px-2 border border-rule hover:border-rule-strong bg-paper transition-all">
+                    Imajinatif
+                  </button>
+                </div>
+                <div id="verdictBox-2" class="hidden mt-4 p-3.5 border border-rule text-xs leading-relaxed"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="font-mono text-xs text-faint flex justify-between pt-4 border-t border-rule">
+            <span>IX — Soal Telaah Teks Rekon</span>
+            <span>HAL. 06</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         LEMBAR 07: KOLOFON PENUTUP
+         ======================================================= -->
+    <section class="page-spread" data-running="Lembar VII — Penutup & Kolofon">
+      <div class="w-full max-w-7xl mx-auto h-full px-6 lg:px-16 flex flex-col justify-between overflow-y-auto editorial-scroll">
+        <div class="border-x border-rule bg-paper h-full p-8 sm:p-16 lg:p-24 flex flex-col justify-between text-center relative shadow-sm">
+          
+          <div class="stagger-in d-1 font-mono text-xs uppercase tracking-[0.3em] text-faint">
+            AKHIR MONOGRAFI • LEMBAR VII DARI VII
+          </div>
+
+          <div class="my-auto py-10 max-w-3xl mx-auto">
+            <div class="stagger-in d-2 inline-block ink-stamp px-4 py-2 font-mono text-xs mb-8">
+              SELESAI DIBACA
+            </div>
+
+            <h2 class="stagger-in d-2 font-serif font-normal text-6xl sm:text-8xl lg:text-[8rem] leading-none text-ink tracking-tight">
+              Terima Kasih<span class="text-soga">.</span>
+            </h2>
+
+            <div class="stagger-in d-3 w-20 h-[1.5px] mx-auto my-10" style="background-color: var(--soga);"></div>
+
+            <p class="stagger-in d-3 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+              Karya Presentasi Oleh:
+            </p>
+            <p class="stagger-in d-3 font-serif text-3xl sm:text-5xl text-ink mt-3">
+              Alfalian Vergio Novel Bangun
+            </p>
+          </div>
+
+          <div class="stagger-in d-4 pt-6 border-t border-rule flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+            <button onclick="goToPage(0)" class="px-5 py-3 border border-rule-strong hover:bg-ink hover:text-paper transition-colors uppercase tracking-widest">
+              ← Kembali ke Sampul Awal
+            </button>
+            <span class="text-faint">Pustaka Teks Rekon • Bahasa Indonesia</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       RUNNING FOOTER & DRAG FOLIO NAVIGATION
+       ========================================================= -->
+  <footer class="fixed bottom-0 left-0 right-0 h-16 border-t border-rule bg-paper/95 backdrop-blur-md z-40 px-6 lg:px-16 flex items-center justify-between">
+    <!-- Kiri: Tombol Navigasi Sebelumnya & Berikutnya -->
+    <div class="flex items-center gap-2.5">
+      <button onclick="prevPage()" id="prevBtn" class="px-3.5 py-2 border border-rule hover:border-rule-strong disabled:opacity-30 disabled:pointer-events-none font-mono text-xs transition-all bg-paper">
+        ← Sebelumnya
+      </button>
+      <button onclick="nextPage()" id="nextBtn" class="px-3.5 py-2 border border-rule hover:border-rule-strong disabled:opacity-30 disabled:pointer-events-none font-mono text-xs transition-all bg-paper">
+        Berikutnya →
+      </button>
+    </div>
+
+    <!-- Tengah: Indikator Lembar & Garis Progres -->
+    <div class="hidden sm:flex items-center gap-5 flex-1 max-w-lg mx-6">
+      <span id="folioCounter" class="font-mono text-xs text-ink font-semibold shrink-0">01 / 07</span>
+      <div class="w-full h-[2px] bg-rule relative flex items-center justify-between" style="background-color: var(--rule);">
+        <div id="folioProgressFill" class="absolute left-0 top-0 bottom-0 transition-all duration-500" style="background-color: var(--soga); width: 0%;"></div>
+        <div id="folioMarkers" class="relative z-10 w-full flex justify-between"></div>
+      </div>
+    </div>
+
+    <!-- Kanan: Petunjuk Geser Desktop -->
+    <div class="flex items-center gap-2 font-mono text-[11px] text-faint">
+      <span class="hidden md:inline">Geser halaman atau gunakan tombol panah</span>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       DRAWER DAFTAR ISI
+       ========================================================= -->
+  <div id="indexDrawer" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs items-center justify-center p-4">
+    <div class="bg-paper border border-rule-strong w-full max-w-2xl p-8 sm:p-12 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-rule pb-4 mb-6">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-widest text-soga font-semibold">INDEKS MONOGRAFI</p>
+          <h3 class="font-serif text-2xl sm:text-3xl text-ink mt-0.5">Daftar Isi Presentasi</h3>
+        </div>
+        <button onclick="toggleIndexDrawer()" class="font-mono text-xs px-3.5 py-2 border border-rule hover:border-rule-strong bg-paper">
+          Tutup [ESC]
+        </button>
+      </div>
+
+      <div class="divide-y border-y border-rule font-serif text-lg">
+        <button onclick="jumpFromDrawer(0)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>Sampul: Teks Rekon</span>
+          <span class="font-mono text-xs text-soga">Lembar 01</span>
+        </button>
+        <button onclick="jumpFromDrawer(1)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>I. Apa itu Teks Rekon? & II. Jenis-Jenisnya</span>
+          <span class="font-mono text-xs text-soga">Lembar 02</span>
+        </button>
+        <button onclick="jumpFromDrawer(2)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>III. Teks Rekon Faktual & IV. Contoh-Contohnya</span>
+          <span class="font-mono text-xs text-soga">Lembar 03</span>
+        </button>
+        <button onclick="jumpFromDrawer(3)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>V. Teks Rekon Pribadi & VI. Contoh-Contohnya</span>
+          <span class="font-mono text-xs text-soga">Lembar 04</span>
+        </button>
+        <button onclick="jumpFromDrawer(4)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>VII. Teks Rekon Imajinatif & VIII. Contoh-Contohnya</span>
+          <span class="font-mono text-xs text-soga">Lembar 05</span>
+        </button>
+        <button onclick="jumpFromDrawer(5)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>IX. Soal - Soal Telaah Kutipan</span>
+          <span class="font-mono text-xs text-soga">Lembar 06</span>
+        </button>
+        <button onclick="jumpFromDrawer(6)" class="w-full py-3.5 px-3 flex items-baseline justify-between text-left hover:bg-paper-alt/60 transition-colors">
+          <span>Penutup: Terima Kasih</span>
+          <span class="font-mono text-xs text-soga">Lembar 07</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       JAVASCRIPT: DRAG PHYSICS & INTERACTION
+       ========================================================= -->
+  <script>
+    const track = document.getElementById('editorialTrack');
+    const pages = Array.from(document.querySelectorAll('.page-spread'));
+    const totalPages = pages.length;
+    let currentIndex = 0;
+
+    const runningHeaderChapter = document.getElementById('runningHeaderChapter');
+    const folioCounter = document.getElementById('folioCounter');
+    const folioProgressFill = document.getElementById('folioProgressFill');
+    const folioMarkers = document.getElementById('folioMarkers');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function buildMarkers() {
+      if (!folioMarkers) return;
+      folioMarkers.innerHTML = '';
+      pages.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        const active = idx === currentIndex;
+        dot.className = `w-2.5 h-2.5 rounded-full transition-transform ${active ? 'scale-125' : 'hover:scale-110'}`;
+        dot.style.backgroundColor = active ? 'var(--soga)' : 'var(--paper)';
+        dot.style.border = active ? '2px solid var(--soga)' : '1.5px solid var(--ink-faint)';
+        dot.title = `Ke Lembar ${idx + 1}`;
+        dot.onclick = () => goToPage(idx);
+        folioMarkers.appendChild(dot);
+      });
+    }
+
+    function updateDeckPosition() {
+      const offsetPercent = -(currentIndex * 100);
+      track.style.transform = `translate3d(${offsetPercent}vw, 0, 0)`;
+
+      pages.forEach((page, idx) => {
+        if (idx === currentIndex) {
+          page.classList.add('is-active');
+        } else {
+          page.classList.remove('is-active');
+        }
+      });
+
+      runningHeaderChapter.textContent = pages[currentIndex].getAttribute('data-running');
+      folioCounter.textContent = `${String(currentIndex + 1).padStart(2, '0')} / 0${totalPages}`;
+      folioProgressFill.style.width = `${(currentIndex / (totalPages - 1)) * 100}%`;
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === totalPages - 1;
+      buildMarkers();
+    }
+
+    function goToPage(index) {
+      if (index < 0) index = 0;
+      if (index >= totalPages) index = totalPages - 1;
+      currentIndex = index;
+      updateDeckPosition();
+    }
+
+    function nextPage() {
+      if (currentIndex < totalPages - 1) goToPage(currentIndex + 1);
+    }
+
+    function prevPage() {
+      if (currentIndex > 0) goToPage(currentIndex - 1);
+    }
+
+    // Real-time drag physics untuk mouse dan touch
+    let isPointerDown = false;
+    let startX = 0;
+    let startY = 0;
+    let currentDragX = 0;
+    let isHorizontalDrag = null;
+
+    track.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      isPointerDown = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      currentDragX = 0;
+      isHorizontalDrag = null;
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isPointerDown) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (isHorizontalDrag === null) {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+          isHorizontalDrag = Math.abs(dx) > Math.abs(dy);
+          if (isHorizontalDrag) {
+            track.classList.add('is-dragging');
+          }
+        }
+      }
+
+      if (isHorizontalDrag) {
+        let effectiveDx = dx;
+        if ((currentIndex === 0 && dx > 0) || (currentIndex === totalPages - 1 && dx < 0)) {
+          effectiveDx = dx * 0.25;
+        }
+        currentDragX = effectiveDx;
+        const baseVw = -(currentIndex * 100);
+        track.style.transform = `translate3d(calc(${baseVw}vw + ${effectiveDx}px), 0, 0)`;
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      track.classList.remove('is-dragging');
+
+      if (isHorizontalDrag) {
+        const threshold = window.innerWidth * 0.12;
+        if (currentDragX < -threshold && currentIndex < totalPages - 1) {
+          currentIndex++;
+        } else if (currentDragX > threshold && currentIndex > 0) {
+          currentIndex--;
+        }
+        updateDeckPosition();
+      }
+    });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextPage();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevPage();
+      } else if (e.key === 'Escape') {
+        document.getElementById('indexDrawer').classList.add('hidden');
+        document.getElementById('indexDrawer').classList.remove('flex');
+      }
+    });
+
+    // Catatan Marginalia
+    function setNote(type, text) {
+      const target = document.getElementById(`noteText${type}`);
+      if (target) {
+        target.textContent = text;
+      }
+    }
+
+    // Penilaian Soal Telaah
+    function gradePassage(num, choice, btn) {
+      const buttons = document.querySelectorAll(`.ans-btn-${num}`);
+      buttons.forEach((b) => {
+        b.style.backgroundColor = 'var(--paper)';
+        b.style.color = 'var(--ink)';
+        b.style.borderColor = 'var(--rule)';
+      });
+
+      const verdictBox = document.getElementById(`verdictBox-${num}`);
+      verdictBox.classList.remove('hidden');
+
+      const isCorrect = (num === 1 && choice === 'faktual') || (num === 2 && choice === 'imajinatif');
+
+      if (isCorrect) {
+        btn.style.backgroundColor = 'var(--soga)';
+        btn.style.color = '#FAF6F0';
+        btn.style.borderColor = 'var(--soga)';
+        verdictBox.style.backgroundColor = 'var(--soga-soft)';
+        verdictBox.style.borderColor = 'var(--soga)';
+
+        if (num === 1) {
+          verdictBox.innerHTML = `<strong class="text-soga font-mono uppercase tracking-wider">[ TEPAT — TEKS REKON FAKTUAL ]</strong><br/>Kutipan melaporkan kejadian nyata bencana banjir rob di Pantai Utara pada 15 November 2024 secara faktual dan kronologis.`;
+        } else {
+          verdictBox.innerHTML = `<strong class="text-soga font-mono uppercase tracking-wider">[ TEPAT — TEKS REKON IMAJINATIF ]</strong><br/>Memadukan latar tempat nyata (Museum Fatahillah) dengan tokoh serta alur khayalan (agen penjelajah waktu 2240).`;
+        }
+      } else {
+        btn.style.backgroundColor = 'var(--paper-alt)';
+        btn.style.borderColor = 'var(--rule-strong)';
+        verdictBox.style.backgroundColor = 'transparent';
+        verdictBox.style.borderColor = 'var(--rule-strong)';
+
+        if (num === 1) {
+          verdictBox.innerHTML = `<strong>Kurang tepat.</strong> Ada data waktu kejadian nyata (15 November 2024 pukul 14.30 WIB). Pilih <strong>Faktual</strong>.`;
+        } else {
+          verdictBox.innerHTML = `<strong>Kurang tepat.</strong> Walaupun berlatar Museum Fatahillah, tokoh penjelajah waktu tahun 2240 adalah rekaan fiksi. Pilih <strong>Imajinatif</strong>.`;
+        }
+      }
+    }
+
+    function toggleIndexDrawer() {
+      const drawer = document.getElementById('indexDrawer');
+      const isHidden = drawer.classList.contains('hidden');
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        drawer.classList.add('flex');
+      } else {
+        drawer.classList.add('hidden');
+        drawer.classList.remove('flex');
+      }
+    }
+
+    function jumpFromDrawer(idx) {
+      toggleIndexDrawer();
+      goToPage(idx);
+    }
+
+    function togglePaperMode() {
+      const html = document.documentElement;
+      const isNight = html.classList.toggle('night-ink');
+      document.getElementById('paperModeBtn').textContent = isNight ? 'Siang' : 'Malam';
+    }
+
+    window.addEventListener('load', () => {
+      updateDeckPosition();
+    });
+  </script>
+</body>
+</html>
+```
